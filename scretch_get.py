@@ -2,75 +2,67 @@ import requests
 import pandas as pd
 import json
 from datetime import datetime
+from config import get_user_detail
 
 pd.set_option('display.max_columns', 10, 'display.max_rows', 10)
 
 
+def get_Token():
+    user, pwd = get_user_detail()
+    r = requests.get("https://api.totalkilatgps.com/"
+                     "token?grant_type=totalkilatgps&account_name=" + user + "&account_password=" + pwd)
+    token = json.loads(r.text)
+    m_token = token['access_token']
+
+    return m_token
+
+
 def APIcall_geoFence():
-    r = requests.get("https://api.totalkilatgps.com/geofenceInfo?grant_type=totalkilatgps&access_token=GBQ0cbg"
-                     "/YOrLbmf0Z0DBfDH02FPUpJPHJ"
-                     "/MDt99CnqAx5nUg3rE0Q9bCllY9gWCyI7zDTp6a9XFtLhcAbn6sDgfrhg3tNhepCibmzgdSD3iGilBZ1EK1LcIg+8RobUJh"
-                     "&geoName=")
+    r = requests.get("https://api.totalkilatgps.com/"
+                     "geofenceInfo?grant_type=totalkilatgps&access_token=" + get_Token() + "&geoName=")
     data = json.loads(r.text)
     df_geoFence = pd.DataFrame(data[0])
     df_geoFence.reset_index(drop=True, inplace=True)
     print(df_geoFence)
 
-    # df_geoFence.to_excel(
-    #     "geoFence_"+str(datetime.now().strftime("%m-%d-%Y"))+".xlsx"
-    # )
     return df_geoFence
 
 
 def APIcall_DeviceInformation():
-    r = requests.get("https://api.totalkilatgps.com/deviceInfo?grant_type=totalkilatgps&access_token=GBQ0cbg"
-                     "/YOrLbmf0Z0DBfDH02FPUpJPHJ"
-                     "/MDt99CnqAx5nUg3rE0Q9bCllY9gWCyI7zDTp6a9XFtLhcAbn6sDgfrhg3tNhepCibmzgdSD3iGilBZ1EK1LcIg+8RobUJh")
+    r = requests.get("https://api.totalkilatgps.com/deviceInfo?grant_type=totalkilatgps&access_token=" + get_Token())
     data = json.loads(r.text)
     dfDeviceInformation = pd.DataFrame(data[0])
     dfDeviceInformation.reset_index(drop=True, inplace=True)
     print(dfDeviceInformation)
 
-    # dfDeviceInformation.to_excel(
-    #     "DeviceInformation_" + str(datetime.now().strftime("%m-%d-%Y")) + ".xlsx"
-    # )
     return dfDeviceInformation
 
 
 def APIcall_DeviceHistoryData():
-    r = requests.get("https://api.totalkilatgps.com/deviceHistoryData?grant_type=totalkilatgps&access_token=GBQ0cbg"
-                     "/YOrLbmf0Z0DBfDH02FPUpJPHJ"
-                     "/MDt99CnqAx5nUg3rE0Q9bCllY9gWCyI7zDTp6a9XFtLhcAbn6sDgfrhg3tNhepCibmzgdSD3iGilBZ1EK1LcIg+8RobUJh"
-                     "&device_name=42976836&start_time=2023-08-22 10:05:33&end_time=2023-08-23 23:00:00")
+    r = requests.get("https://api.totalkilatgps.com/"
+                     "deviceHistoryData?"
+                     "grant_type=totalkilatgps&access_token="
+                     + get_Token() + "&device_name=42976836&start_time=2023-08-22 10:05:33&end_time=2023-08-23 23:00:00")
 
     data = json.loads(r.text)
     dfDeviceHistoryData = pd.DataFrame(data[0])
     dfDeviceHistoryData.reset_index(drop=True, inplace=True)
-
     print(dfDeviceHistoryData)
 
-    # dfDeviceHistoryData.to_excel(
-    #     "DeviceHistoryData_" + str(datetime.now().strftime("%m-%d-%Y")) + ".xlsx"
-    # )
     return dfDeviceHistoryData
 
 
 def APIcall_LatestVehiclePosition():
     r = requests.get("https://api.totalkilatgps.com/latestVehiclePosition?grant_type=totalkilatgps&access_token"
-                     "=GBQ0cbg/YOrLbmf0Z0DBfDH02FPUpJPHJ"
-                     "/MDt99CnqAx5nUg3rE0Q9bCllY9gWCyI7zDTp6a9XFtLhcAbn6sDgfrhg3tNhepCibmzgdSD3iGilBZ1EK1LcIg+8RobUJh"
-                     "&device_name=42976836")
+                     "=" + get_Token() + "&device_name=42976836")
 
     data = json.loads(r.text)
     dfLatestVehiclePosition = pd.DataFrame(data[0])
     dfLatestVehiclePosition.reset_index(drop=True, inplace=True)
-
     print(dfLatestVehiclePosition)
 
-    # dfLatestVehiclePosition.to_excel(
-    #     "LatestVehiclePosition_" + str(datetime.now().strftime("%m-%d-%Y")) + ".xlsx"
-    # )
     return dfLatestVehiclePosition
+
 
 def combine_excel_per_sheet():
     with pd.ExcelWriter("Master_TotalKilatGPS_" + datetime.now().strftime("%m-%d-%Y") + ".xlsx") as writer:
