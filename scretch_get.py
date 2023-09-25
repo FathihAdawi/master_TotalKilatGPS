@@ -1,3 +1,4 @@
+import nacl.pwhash
 import requests
 import pandas as pd
 import json
@@ -9,6 +10,8 @@ pd.set_option('display.max_columns', 10, 'display.max_rows', 10)
 
 def get_Token():
     user, pwd = get_user_detail()
+    p = nacl.pwhash.str(b+pwd)
+
     r = requests.get("https://api.totalkilatgps.com/"
                      "token?grant_type=totalkilatgps&account_name=" + user + "&account_password=" + pwd)
     token = json.loads(r.text)
@@ -42,7 +45,8 @@ def APIcall_DeviceHistoryData():
     r = requests.get("https://api.totalkilatgps.com/"
                      "deviceHistoryData?"
                      "grant_type=totalkilatgps&access_token="
-                     + get_Token() + "&device_name=42976836&start_time=2023-08-22 10:05:33&end_time=2023-08-23 23:00:00")
+                     + get_Token() + "&device_name=42976836"
+                                     "&start_time=2023-08-22 10:05:33&end_time=2023-08-23 23:00:00")
 
     data = json.loads(r.text)
     dfDeviceHistoryData = pd.DataFrame(data[0])
